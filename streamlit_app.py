@@ -1,2 +1,5 @@
 import streamlit as st
-st.title("Welcome to 1littlecoder Youtube")
+with st.spinner('Espere, por favor...'):
+    time.sleep(5)
+st.success('Done!')
+st.title("Hola soy tu chatbot")
