@@ -2,7 +2,7 @@ import streamlit as st
 with st.spinner('Espere, por favor...'):
 #time.sleep(5)
 ##Cargamos las librerias necesarias para trabajar los datos
-import re
+#import re
 import nltk
 nltk.download('punkt')
 from nltk import WordPunctTokenizer
