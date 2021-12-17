@@ -1,12 +1,3 @@
-pip install streamlit
-pip install pandas
-pip install matplotlib
-pip install seaborn
-pip install nltk
-pip install textblob
-pip install gensim
-pip install summa
-
 import streamlit as st
 ##Cargamos las librerias necesarias para trabajar los datos
 #import re
