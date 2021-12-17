@@ -9,7 +9,6 @@ from nltk.stem import SnowballStemmer
 nltk.download('wordnet')
 from nltk.corpus import stopwords
 nltk.download('stopwords')
-import emoji
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
