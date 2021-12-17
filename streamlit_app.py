@@ -1,7 +1,7 @@
 import streamlit as st
 ##Cargamos las librerias necesarias para trabajar los datos
 #import re
-pip nltk
+! pip nltk
 nltk.download('punkt')
 from nltk import WordPunctTokenizer
 WPT=WordPunctTokenizer()
