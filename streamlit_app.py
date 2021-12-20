@@ -100,7 +100,7 @@ def AS(input_text):
   #plt.imshow(wc_result, interpolation='bilinear')
   #S=wc_result
   plt.show()
-  return (re1,re2,S)
+  return [re1,re2]
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
 txt = st.text_area('Introduce lo que me quieres contar')
