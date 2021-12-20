@@ -12,6 +12,7 @@ from nltk.corpus import stopwords
 nltk.download('stopwords')
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 import tensorflow_hub as hub
 #import os
 #import pandas as pd
@@ -78,5 +79,8 @@ def txtWC(inp):
       limpio.remove(tokens)##Lista con Tokens
   union=' '.join(limpio)
   return union
+##Cargamos los modelos
+modelBin = tf.keras.models.load_model('protomodelo.h5')
+modelAS6 = tf.keras.models.load_model('protomodeloAS6p1.h5')
 #############
 st.title("Hola soy Psibot")
