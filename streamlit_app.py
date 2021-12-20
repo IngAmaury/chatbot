@@ -19,9 +19,9 @@ import tensorflow_hub as hub
 #import io
 ##Embedding tf2-preview-nnlm https://tfhub.dev/google/collections/tf2-preview-nnlm/1
 #https://tfhub.dev/google/collections/nnlm/1
-#embedd = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-de-dim128-with-normalization/1")
+embedd = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-de-dim128-with-normalization/1")
 ##Embedding de 50
-embedd = hub.load("https://tfhub.dev/google/nnlm-es-dim50-with-normalization/2")
+#embedd = hub.load("https://tfhub.dev/google/nnlm-es-dim50-with-normalization/2")
 from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 wc = WordCloud()
@@ -50,13 +50,13 @@ def tx2m(inp):
   #Analisis de la lonitud del texto
   long=len(final)
   n=1+(long//20)
-  z=np.zeros((n,1,20,50))##Pre padding
+  z=np.zeros((n,1,48,128))##Pre padding
   count,av=0,0
   for k in final:
     temp=embedd([k]).numpy()
     z[av,0,count,:]=temp[0][:]##embed() funcion de vectorizacion
     count+=1
-    if count==19:
+    if count==47:
       count=0
       av+=1
   return z
