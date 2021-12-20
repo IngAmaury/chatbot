@@ -82,5 +82,24 @@ def txtWC(inp):
 ##Cargamos los modelos
 modelBin = tf.keras.models.load_model('protomodelo.h5')
 modelAS6 = tf.keras.models.load_model('protomodeloAS6p1.h5')
+##Diccionarios para evaluar las predicciones de los modelos
+polaridad={0:'Positivas',1:'Negativas'}
+emocion={0:'Alegria',1:'Sorpresa',2:'Tristeza',3:'Miedo',4:'Ira',5:'Disguto'}
+def AS(input_text):
+  ####Cargamos los modelos entrenados:
+  mt=tx2m(input_text) ###Respresentación numérica del texto
+  result1=modelBin.predict(mt)
+  result2=modelAS6.predict(mt)
+  a1=sum(result1)
+  a2=sum(result2)
+  re1=polaridad[np.where(a1 == np.amax(a1))[0][0]]
+  re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
+  v=txtWC(input_text) ###Texto original procesado para la nube de palabras
+  wc_result=wc.generate(v) ## Variable ppara almacenar la nube de palabras
+  #plt.axis("off")
+  #plt.imshow(wc_result, interpolation='bilinear')
+  #S=wc_result
+  plt.show()
+  return (re1,re2,S)
 #############
 st.title("Hola soy Psibot")
