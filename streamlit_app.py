@@ -105,8 +105,7 @@ def AS(input_text):
 st.title("Hola soy Psibot")
 txt = st.text_area('Introduce lo que me quieres contar')
 if st.button('Say hello'):
+  if txt=='':
+    st.write('Escribe en el espacio')
+  else:
      st.write('Sentimentos:')
-     st.write(AS(txt))
-else:
-     st.write('Goodbye')
-
