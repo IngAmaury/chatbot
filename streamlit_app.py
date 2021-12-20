@@ -103,7 +103,7 @@ def AS(input_text):
   return re1
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
-txt = st.text_area('Introduce lo que me quieres contar')
+txt = st.text_area('Introduce lo que me quieres contar',on_change=None, placeholder='Expresate aquí')
 if st.button('Say hello'):
   if txt=='':
     st.write('Escribe en el espacio')
