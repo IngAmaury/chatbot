@@ -104,4 +104,5 @@ def AS(input_text):
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
 txt = st.text_area('Introduce lo que me quieres contar')
-st.write('Sentiment:')
+as=AS(txt);
+st.write('Sentimentos:',as[1],as[2])
