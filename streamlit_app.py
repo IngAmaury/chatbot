@@ -49,7 +49,7 @@ def tx2m(inp):
   ##Conversion a matriz
   #Analisis de la lonitud del texto
   long=len(final)
-  n=1+(long//20)
+  n=1+(long//48)
   z=np.zeros((n,1,48,128))##Pre padding
   count,av=0,0
   for k in final:
