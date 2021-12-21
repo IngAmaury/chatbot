@@ -17,7 +17,7 @@ from tensorflow import keras
 from keras.models import Sequential
 from keras import layers
 from keras.models import Sequential
-from keras.layers import MaxPooling2D,MaxPooling3D, Dropout, Dense, Flatten
+from keras.layers import MaxPooling2D, Dropout, Dense, Flatten
 from keras.layers import Convolution2D as conv2d
 #import os
 #import pandas as pd
@@ -94,7 +94,7 @@ def AS(input_text):
   re1=polaridad[np.where(a1 == np.amax(a1))[0][0]]
   re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
   v=txtWC(input_text) ###Texto original procesado para la nube de palabras
-  wc_result=wc.generate(v) ## Variable ppara almacenar la nube de palabras
+  wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
   #plt.axis("off")
   #plt.imshow(wc_result, interpolation='bilinear')
   #S=wc_result
@@ -102,10 +102,10 @@ def AS(input_text):
   return re1
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
-txt = st.text_area('Introduce lo que me quieres contar',on_change=None, placeholder='Expresate aquí')
+txt = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
 if st.button('Contar'):
   if txt=='':
-    st.write('Escribe en el espacio de arriba')
+    st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
      st.write(AS(txt))
