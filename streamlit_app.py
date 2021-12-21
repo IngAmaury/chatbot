@@ -1,7 +1,7 @@
 #lIBRERIA DE LAWEB APP:
 import streamlit as st
 ##Cargamos las librerias necesarias para trabajar los datos
-#import re
+import re
 import nltk
 nltk.download('punkt')
 from nltk import WordPunctTokenizer
@@ -62,14 +62,8 @@ def tx2m(inp):
   return z
 # Preaara el texto para la funcion de nubes de palabras
 def txtWC(inp):
-  #quitar emojis como funcion:
-  s=inp
-  def deEmojify(texto):
-      return emoji.get_emoji_regexp().sub("", texto)
-  ##Quitar emojis
-  fr=deEmojify(s)##Listo
   ##Tokenizar
-  toks=WPT.tokenize(fr)
+  toks=WPT.tokenize(inp)
   limpio=toks[:]
   ##Limpiar los tokens:
   for tokens in toks:
@@ -104,8 +98,9 @@ def AS(input_text):
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
 txt = st.text_area('Introduce lo que me quieres contar',on_change=None, placeholder='Expresate aquí')
-if st.button('Say hello'):
+if st.button('Contar'):
   if txt=='':
-    st.write('Escribe en el espacio')
+    st.write('Escribe en el espacio de arriba')
   else:
      st.write('Sentimentos:')
+     st.write(AS(txt))
