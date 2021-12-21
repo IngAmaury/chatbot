@@ -12,8 +12,13 @@ from nltk.corpus import stopwords
 nltk.download('stopwords')
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 import tensorflow_hub as hub
+from tensorflow import keras
+from keras.models import Sequential
+from keras import layers
+from keras.models import Sequential
+from keras.layers import MaxPooling2D,MaxPooling3D, Dropout, Dense, Flatten
+from keras.layers import Convolution2D as conv2d
 #import os
 #import pandas as pd
 #import io
