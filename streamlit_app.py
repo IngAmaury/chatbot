@@ -77,7 +77,6 @@ def txt2WC(inp):
 #modelBin = tf.keras.models.load_model('')
 #modelAS6 = tf.keras.models.load_model('protomodeloAS6p1.h5')
 model_path = os.path.join('protomodelo.h5')
-@st.cache
 def model_load():
     model = tf.keras.models.load_model(model_path)
     return model
@@ -92,13 +91,13 @@ def AS(input_text):
   a1=sum(result1)
   #a2=sum(result2)
   re1=polaridad[np.where(a1 == np.amax(a1))[0][0]]
-  re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
-  v=txtWC(input_text) ###Texto original procesado para la nube de palabras
-  wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
+  #re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
+  #v=txtWC(input_text) ###Texto original procesado para la nube de palabras
+  #wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
   #plt.axis("off")
   #plt.imshow(wc_result, interpolation='bilinear')
   #S=wc_result
-  plt.show()
+  #plt.show()
   return re1
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
@@ -109,4 +108,4 @@ if st.button('Contar'):
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     st.write(tx2m(txt)[0][0])
+     st.write(AS(txt))
