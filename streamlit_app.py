@@ -103,10 +103,9 @@ def AS(input_text):
 st.title("Hola soy Psibot")
 txt = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
 modelBin = model_load()
-from numy import size
 if st.button('Contar'):
   if txt=='':
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     st.write(size(tx2m(txt)))
+     st.write(np.size(tx2m(txt)))
