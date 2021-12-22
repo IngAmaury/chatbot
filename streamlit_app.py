@@ -61,7 +61,7 @@ def tx2m(inp):
       av+=1
   return z
 # Preaara el texto para la funcion de nubes de palabras
-def txtWC(inp):
+def txt2WC(inp):
   ##Tokenizar
   toks=WPT.tokenize(inp)
   limpio=toks[:]
@@ -109,4 +109,4 @@ if st.button('Contar'):
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     st.write(AS(txt))
+     st.write(tx2m(txt)[0][0])
