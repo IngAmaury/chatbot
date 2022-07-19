@@ -96,5 +96,5 @@ if st.button('Contar'):
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     outTXT = np.argmax(model.predict(txtInput))
+     outTXT = np.argmax(model.predict(tx2m(txtInput)))
      st.write(outTxt)
