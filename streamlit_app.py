@@ -3,13 +3,13 @@ import streamlit as st
 ##Cargamos las librerias necesarias para trabajar los datos
 import re
 import nltk
+nltk.download('stopwords')
 #nltk.download('punkt')
 from nltk import WordPunctTokenizer
 WPT=WordPunctTokenizer()
 from nltk.stem import SnowballStemmer
 #nltk.download('wordnet')
 from nltk.corpus import stopwords
-#nltk.download('stopwords')
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
