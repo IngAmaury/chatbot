@@ -16,7 +16,7 @@ import tensorflow_hub as hub
 from tensorflow import keras
 import os
 from keras.models import load_model
-import io
+#import io
 ##Embedding tf2-preview-nnlm https://tfhub.dev/google/collections/tf2-preview-nnlm/1
 #https://tfhub.dev/google/collections/nnlm/1
 embedd128 = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1")
