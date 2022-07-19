@@ -15,13 +15,11 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow import keras
 import os
-#import pandas as pd
-#import io
+from keras.models import load_model
+import io
 ##Embedding tf2-preview-nnlm https://tfhub.dev/google/collections/tf2-preview-nnlm/1
 #https://tfhub.dev/google/collections/nnlm/1
 embedd128 = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1")
-##Embedding de 50
-#embedd = hub.load("https://tfhub.dev/google/nnlm-es-dim50-with-normalization/2")
 from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 wc = WordCloud()
