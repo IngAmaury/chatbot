@@ -15,6 +15,11 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from tensorflow import keras
 import os
+from tensorflow import keras
+from keras.models import Sequential
+from keras import layers
+from keras import initializers
+from keras.layers import Convolution2D,MaxPooling2D,Dropout,Dense,Flatten
 #from keras.models import load_model
 #import io
 ##Embedding tf2-preview-nnlm https://tfhub.dev/google/collections/tf2-preview-nnlm/1
