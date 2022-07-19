@@ -93,11 +93,11 @@ def POL(input_text):
   return re1
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
-txt_in = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
+txtInput = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
 model = model_load()
 if st.button('Contar'):
-  if txt_in=='':
+  if txtInput=='':
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     st.write(POL(txt))
+     st.write(POL(txtInput))
