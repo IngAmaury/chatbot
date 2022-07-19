@@ -102,4 +102,6 @@ if st.button('Contar'):
   else:
      st.write('Sentimentos:')
      outTxt = tx2m(txtInput)
+     predict = model.predict(outTxt)
+     respuesta = np.argmax(predict, axis=1)[0]
      st.write(outTxt.shape,type(outTxt),type(model))
