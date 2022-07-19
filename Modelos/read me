@@ -1,0 +1,5 @@
+Modelos:
+Contiene los modelos generados con google cloab.
+Los archivos son .h5 y tienen los mismos requerimentos que se especifican en sus respectivos notebooks de Google Colab.
+Los de polaridad y detección de emociones requieren un embedding de 128 caracteristicas para que funcione correctamente cada modelo.
+Los archivos que comienzan con "W" son los pesos asociados a cada modelo con el mismo nombre.
