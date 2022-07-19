@@ -26,12 +26,16 @@ from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as plt
 wc = WordCloud()
 ### Genera las entradas necesarias para los modelos entrenados
-def tx2m(inp):
-  fr=inp.lower()##a minusculas
+def tx2m(inpt):
+  string=str(inpt)
+  string = re.sub(r'https?://\S+|www\.\S+', '', string) #Quitar URLS
+  string = re.sub(r'@\S+\S+','',string) #Quitar menciones @
+  inp = re.sub(r'#\S+\S+','',string) #Quitar texto de hashtag
+  s=inp.lower()##a minusculas
   ##Quitar caracteres especiales
   a,b = 'áäéëíïóöúü','aaeeiioouu'
   trans = str.maketrans(a,b)
-  frs=fr.translate(trans)
+  frs=s.translate(trans)
   ##Tokenizar
   toks=WPT.tokenize(frs)
   limpio=toks[:]
@@ -41,25 +45,13 @@ def tx2m(inp):
       limpio.remove(tokens)
     if tokens in "::\/.,';]:#[\=-¿?><"":}{+_)(*&^%$@°|¬¡!~¨":#eliminar simbolos
       limpio.remove(tokens)##Lista con Tokens
-  ##Cogido extraido del blog 
-  ##http://josearcosaneas.github.io/python/r/procesamiento/lenguaje/2017/01/02/procesamiento-lenguaje-natural-0.html
-  Snowball_stemmer = SnowballStemmer('spanish')
-  stemmers = [Snowball_stemmer.stem(lim) for lim in limpio]
-  final = [stem for stem in stemmers if stem.isalpha() and len(stem) > 1] ##Resultado del stem
-  ##Conversion a matriz
-  #Analisis de la lonitud del texto
-  long=len(final)
-  n=1+(long//48)
-  z=np.zeros((n,1,48,128))##Pre padding
-  count,av=0,0
-  for k in final:
-    temp=embedd([k]).numpy()
-    z[av,0,count,:]=temp[0][:]##embed() funcion de vectorizacion
-    count+=1
-    if count==47:
-      count=0
-      av+=1
-  return z
+  z=np.zeros((len(limpio),128))##Pre padding
+  for k in range(len(limpio)):
+    temp=embedd128([limpio[k]]).numpy()
+    z[k][:]=temp[0][:]##embed() funcion de vectorizacion
+  z=np.dot(np.transpose(z),z)
+  res = np.expand_dims(z, axis=(0,1))
+  return res
 # Preaara el texto para la funcion de nubes de palabras
 def txt2WC(inp):
   ##Tokenizar
@@ -76,21 +68,21 @@ def txt2WC(inp):
 ##Cargamos los modelos
 #modelBin = tf.keras.models.load_model('')
 #modelAS6 = tf.keras.models.load_model('protomodeloAS6p1.h5')
-model_path = os.path.join('protomodelo.h5')
+model_path = os.path.join('modelos/CNNpol128in2.h5')
 def model_load():
     model = tf.keras.models.load_model(model_path)
     return model
 ##Diccionarios para evaluar las predicciones de los modelos
 polaridad={0:'Positivas',1:'Negativas'}
 emocion={0:'Alegria',1:'Sorpresa',2:'Tristeza',3:'Miedo',4:'Ira',5:'Disguto'}
-def AS(input_text):
+def POL(input_text):
   ####Cargamos los modelos entrenados:
   mt=tx2m(input_text) ###Respresentación numérica del texto
-  result1=modelBin.predict(mt)
+  results=model.predict(mt)
   #result2=modelAS6.predict(mt)
-  a1=sum(result1)
+  a1=argmax(results)
   #a2=sum(result2)
-  re1=polaridad[np.where(a1 == np.amax(a1))[0][0]]
+  re1=polaridad[a1]
   #re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
   #v=txtWC(input_text) ###Texto original procesado para la nube de palabras
   #wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
@@ -101,11 +93,11 @@ def AS(input_text):
   return re1
 ############__________WEBAPP_______###################
 st.title("Hola soy Psibot")
-txt = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
-modelBin = model_load()
+txt_in = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
+model = model_load()
 if st.button('Contar'):
-  if txt=='':
+  if txt_in=='':
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     st.write(np.shape(tx2m(txt)))
+     st.write(POL(txt)))
