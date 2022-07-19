@@ -102,4 +102,4 @@ if st.button('Contar'):
   else:
      st.write('Sentimentos:')
      outTxt = tx2m(txtInput)
-     st.write(outTxt.shape,type(outTxt))
+     st.write(outTxt.shape,type(outTxt),type(model))
