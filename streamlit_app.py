@@ -68,7 +68,7 @@ def txt2WC(inp):
 ##Cargamos los modelos
 #modelBin = tf.keras.models.load_model('')
 #modelAS6 = tf.keras.models.load_model('protomodeloAS6p1.h5')
-model_path = os.path.join('modelos/CNNpol128in2.h5')
+model_path = os.path.join('Modelos/CNNpol128in2.h5')
 def model_load():
     model = tf.keras.models.load_model(model_path)
     return model
