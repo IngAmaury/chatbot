@@ -101,5 +101,5 @@ if st.button('Contar'):
     st.write('Escribe en el espacio de arriba para contarme algo')
   else:
      st.write('Sentimentos:')
-     outTXT = tx2m(txtInput)
+     outTxt = tx2m(txtInput)
      st.write(outTxt.shape)
