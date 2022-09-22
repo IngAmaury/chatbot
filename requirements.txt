@@ -1,7 +1,7 @@
 autopep8>=1.7
 intel-tensorflow>=2.8
 keras>=2.8
-matplotlib>=3.6
+matplotlib>=3.5
 nltk>=3.7
 numpy>=1.23
 streamlit>=1.12
