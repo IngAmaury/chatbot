@@ -1,106 +1,148 @@
-#lIBRERIA DE LAWEB APP:
+# librería de la webapp
 import streamlit as st
-##Cargamos las librerias necesarias para trabajar los datos
-import re
-import nltk
-nltk.download('stopwords')
-#nltk.download('punkt')
-from nltk import WordPunctTokenizer
-WPT=WordPunctTokenizer()
-from nltk.stem import SnowballStemmer
-#nltk.download('wordnet')
-from nltk.corpus import stopwords
-import numpy as np
-import tensorflow as tf
-import tensorflow_hub as hub
-from tensorflow import keras
-import os
-from keras.models import Sequential
-from keras import layers
-from keras import initializers
-from keras.layers import Convolution2D,MaxPooling2D,Dropout,Dense,Flatten
-#from keras.models import load_model
-#import io
-##Embedding tf2-preview-nnlm https://tfhub.dev/google/collections/tf2-preview-nnlm/1
-#https://tfhub.dev/google/collections/nnlm/1
-embedd128 = hub.load("https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1")
-from wordcloud import WordCloud, ImageColorGenerator
+
+# libreriasde procesamiento de datos
 import matplotlib.pyplot as plt
+import nltk
+import numpy as np
+import os
+import re
+import tensorflow_hub as hub
+
+from keras.models import load_model
+from nltk import WordPunctTokenizer
+from nltk.corpus import stopwords
+from unidecode import unidecode
+from wordcloud import WordCloud
+
+# inicializar datos
+nltk.download('stopwords')
+WPT = WordPunctTokenizer()
+
+# tokens entrenados a partir de Google News en Español
+embedd128 = hub.load(
+    "https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1"
+)
+
 wc = WordCloud()
-### Genera las entradas necesarias para los modelos entrenados
-def tx2m(inpt):
-  string=str(inpt)
-  string = re.sub(r'https?://\S+|www\.\S+', '', string) #Quitar URLS
-  string = re.sub(r'@\S+\S+','',string) #Quitar menciones @
-  inp = re.sub(r'#\S+\S+','',string) #Quitar texto de hashtag
-  s=inp.lower()##a minusculas
-  ##Quitar caracteres especiales
-  a,b = 'áäéëíïóöúü','aaeeiioouu'
-  trans = str.maketrans(a,b)
-  frs=s.translate(trans)
-  ##Tokenizar
-  toks=WPT.tokenize(frs)
-  limpio=toks[:]
-  ##Limpiar los tokens:
-  for tokens in toks:
-    if tokens in stopwords.words('spanish'):#Eliminar stopwords
-      limpio.remove(tokens)
-    if tokens in "::\/.,';]:#[\=-¿?><"":}{+_)(*&^%$@°|¬¡!~¨":#eliminar simbolos
-      limpio.remove(tokens)##Lista con Tokens
-  z=np.zeros((len(limpio),128))##Pre padding
-  for k in range(len(limpio)):
-    temp=embedd128([limpio[k]]).numpy()
-    z[k][:]=temp[0][:]##embed() funcion de vectorizacion
-  z=np.dot(np.transpose(z),z)
-  res = np.expand_dims(z, axis=(0,1))
-  return res
-# Preaara el texto para la funcion de nubes de palabras
-def txt2WC(inp):
-  ##Tokenizar
-  toks=WPT.tokenize(inp)
-  limpio=toks[:]
-  ##Limpiar los tokens:
-  for tokens in toks:
-    if tokens in stopwords.words('spanish'):#Eliminar stopwords
-      limpio.remove(tokens)
-    if tokens in "::\/.,';]:#[\=-¿?><"":}{+_)(*&^%$@°|¬¡!~¨":#eliminar simbolos
-      limpio.remove(tokens)##Lista con Tokens
-  union=' '.join(limpio)
-  return union
-##Cargamos los modelos
+
+# Diccionarios para evaluar las predicciones de los modelos
+polaridad = {0: 'Positivas', 1: 'Negativas'}
+emocion = {0: 'Alegria', 1: 'Sorpresa',
+           2: 'Tristeza', 3: 'Miedo', 4: 'Ira', 5: 'Disguto'}
+
+# ubicación del modelo
 model_path = os.path.join('Modelos/CNNpol128in2.h5')
-def model_load():
-    model = tf.keras.models.load_model(model_path)
-    return model
-##Diccionarios para evaluar las predicciones de los modelos
-polaridad={0:'Positivas',1:'Negativas'}
-emocion={0:'Alegria',1:'Sorpresa',2:'Tristeza',3:'Miedo',4:'Ira',5:'Disguto'}
-def POL(input_text):
-  ####Cargamos los modelos entrenados:
-  mt=tx2m(input_text) ###Respresentación numérica del texto
-  results=model.predict(mt)
-  #result2=modelAS6.predict(mt)
-  a1=argmax(results)
-  #a2=sum(result2)
-  re1=polaridad[a1]
-  #re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
-  #v=txtWC(input_text) ###Texto original procesado para la nube de palabras
-  #wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
-  #plt.axis("off")
-  #plt.imshow(wc_result, interpolation='bilinear')
-  #S=wc_result
-  #plt.show()
-  return re1
-############__________WEBAPP_______###################
-st.title("Hola soy Psibot")
-txtInput = st.text_area('Escribe lo que me quieras contar',on_change=None, placeholder='Expresate aquí')
-model = model_load()
-if st.button('Contar'):
-  if txtInput=='':
-    st.write('Escribe en el espacio de arriba para contarme algo')
-  else:
-     st.write('Sentimentos:')
-     outTxt = tx2m(txtInput)
-     predict = model.predict(outTxt)
-     respuesta = np.argmax(predict, axis=1)[0]
-     st.write(outTxt.shape,type(outTxt),type(model))
+
+
+def text_to_matrix(input):
+    """Genera las entradas necesarias para los modelos entrenados"""
+    string = str(input)
+
+    # sanitizar entrada
+    sanitized = re.sub(r'https?://\S+|www\.\S+', '', string)  # quitar URLs
+    sanitized = re.sub(r'@\S+', '', sanitized)  # quitar menciones @
+    sanitized = re.sub(r'#\S+', '', sanitized)  # quitar texto de hashtag
+
+    # convertir a ASCII (eliminar diacríticos y otros caracteres especiales)
+    sanitized = unidecode(string.lower())
+
+    # tokenizar
+    tokens = WPT.tokenize(sanitized)
+
+    # eliminar datos redundates de los tokens (stopwords y símbolos):
+    limpio = tokens[:]
+    for tokens in tokens:
+        # eliminar stopwords
+        if tokens in stopwords.words('spanish'):
+            limpio.remove(tokens)
+
+        # eliminar simbolos
+        if tokens in "::\/.,';]:#[\=-¿?><"":}{+_)(*&^%$@°|¬¡!~¨":
+            limpio.remove(tokens)  # Lista con Tokens
+
+    z = np.zeros((len(limpio), 128))  # Pre padding
+
+    for i, token in enumerate(limpio):
+        temp = embedd128([token]).numpy()
+        z[i][:] = temp[0][:]  # embed() funcion de vectorizacion
+
+    z = np.dot(np.transpose(z), z)
+    z = np.expand_dims(z, axis=(0, 1))
+
+    return z
+
+
+def text_to_wordcloud(inp):
+    """
+    Prepara el texto para wordcloud
+    """
+
+    # Tokenizar
+    toks = WPT.tokenize(inp)
+    limpio = toks[:]
+    # Limpiar los tokens:
+    for tokens in toks:
+        if tokens in stopwords.words('spanish'):  # Eliminar stopwords
+            limpio.remove(tokens)
+        # eliminar simbolos
+        if tokens in "::\/.,';]:#[\=-¿?><"":}{+_)(*&^%$@°|¬¡!~¨":
+            limpio.remove(tokens)  # Lista con Tokens
+    union = ' '.join(limpio)
+    return union
+
+
+def get_model():
+    return load_model(model_path)
+
+
+def determine_polarity(input_text, model):
+    # Cargamos los modelos entrenados:
+    mt = text_to_matrix(input_text)  # Respresentación numérica del texto
+    results = model.predict(mt)
+    # result2=modelAS6.predict(mt)
+    a1 = np.argmax(results)
+    # a2=sum(result2)
+    re1 = polaridad[a1]
+    #re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
+    # v=txtWC(input_text) ###Texto original procesado para la nube de palabras
+    # wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
+    # plt.axis("off")
+    #plt.imshow(wc_result, interpolation='bilinear')
+    # S=wc_result
+    # plt.show()
+    return re1
+
+
+def main():
+    st.title("Hola soy Psibot")
+
+    text_input = st.text_area('Escribe lo que me quieras contar',
+                              on_change=None, placeholder='Exprésate aquí')
+    model = get_model()
+
+    if st.button('Contar'):
+        if text_input == '':
+            st.write('Escribe en el espacio de arriba para contarme algo')
+
+        else:
+            st.write('Sentimentos:')
+            output_matrix = text_to_matrix(text_input)
+
+            # NOTA: para que el modelo pueda ejecutarse bajo un CPU,
+            # se necesita instalar una versión de tensorflow y keras compatible
+            # (ej. intel-tensorflow)
+            predict = model.predict(output_matrix)
+            pclass = np.argmax(predict, axis=1)[0]
+
+            confidence = np.floor(10000 * predict[0][pclass])/100
+
+            st.write(
+                f'{polaridad[pclass]} (confidencia del {confidence}%)'
+            )
+
+            # st.write(output_matrix.shape, type(output_matrix), type(model))
+
+
+if __name__ == '__main__':
+    main()
