@@ -34,10 +34,9 @@ WPT = WordPunctTokenizer()
 wc = WordCloud()
 
 # Diccionarios para evaluar las predicciones de los modelos
-polaridad = {0: 'Positivas', 1: 'Negativas'}
+polaridad = {0: 'Positivos', 1: 'Negativos'}
 emocion = {0: 'Alegria', 1: 'Sorpresa',
            2: 'Tristeza', 3: 'Miedo', 4: 'Ira', 5: 'Disguto'}
-
 
 
 def text_to_matrix(input):
@@ -106,6 +105,7 @@ def get_model_session():
     model.summary()
     return model, K.get_session()
 
+
 def determine_polarity(input_text, model):
     # Cargamos los modelos entrenados:
     mt = text_to_matrix(input_text)  # Respresentación numérica del texto
@@ -114,11 +114,11 @@ def determine_polarity(input_text, model):
     a1 = np.argmax(results)
     # a2=sum(result2)
     re1 = polaridad[a1]
-    #re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
+    # re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
     # v=txtWC(input_text) ###Texto original procesado para la nube de palabras
     # wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
     # plt.axis("off")
-    #plt.imshow(wc_result, interpolation='bilinear')
+    # plt.imshow(wc_result, interpolation='bilinear')
     # S=wc_result
     # plt.show()
     return re1
@@ -127,19 +127,19 @@ def determine_polarity(input_text, model):
 def main():
     st.title("Hola soy Psibot")
 
-    text_input = st.text_area('Escribe lo que me quieras contar',
+    text_input = st.text_area('Escribe lo que me quieras platicar:',
                               on_change=None, placeholder='Exprésate aquí')
-    
+
     model, session = get_model_session()
 
-    if st.button('Contar'):
+    if st.button('¡Platícame!'):
         if text_input == '':
-            st.write('Escribe en el espacio de arriba para contarme algo')
+            st.write('Escribe en el espacio de arriba lo que quieras platicarme.')
 
         else:
             st.write('Sentimentos:')
             output_matrix = text_to_matrix(text_input)
-            
+
             # inicializar backend de Keras
             K.set_session(session)
 
