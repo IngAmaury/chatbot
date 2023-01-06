@@ -1,9 +1,10 @@
 autopep8>=1.7
 intel-tensorflow>=2.8
 keras>=2.8
-matplotlib>=3.5
+matplotlib>=3.6
 nltk>=3.7
-numpy>=1.21
+numpy>=1.23
+protobuf>=3.20
 streamlit>=1.12
 tensorflow-hub>=0.12
 unidecode>=1.3
