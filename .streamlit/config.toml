@@ -1,0 +1,4 @@
+[browser]
+gatherUsageStats = false
+serverAddress = "amaury-chatbot.ddns.net"
+serverPort = 80

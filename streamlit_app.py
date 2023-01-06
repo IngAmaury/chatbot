@@ -26,7 +26,7 @@ if 'embedd128' not in st.session_state:
     )
 
 try:
-    nltk.data.find('stopwords', quiet=True)
+    nltk.data.find('stopwords')
 except LookupError:
     nltk.download('stopwords', quiet=True)
 
