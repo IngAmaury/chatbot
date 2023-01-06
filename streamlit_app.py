@@ -1,29 +1,36 @@
 # librería de la webapp
 import streamlit as st
 
-# libreriasde procesamiento de datos
+# librerías de python
+import os
+import re
+
+# librerías de procesamiento de datos
+import keras
 import matplotlib.pyplot as plt
 import nltk
 import numpy as np
-import os
-import re
 import tensorflow_hub as hub
 
-from keras.models import load_model
+from keras import backend as K
 from nltk import WordPunctTokenizer
 from nltk.corpus import stopwords
 from unidecode import unidecode
 from wordcloud import WordCloud
 
-# inicializar datos
-nltk.download('stopwords')
+# datos persistentes entre sesiones de streamlit
+if 'embedd128' not in st.session_state:
+    # tokens entrenados a partir de Google News en Español
+    st.session_state['embedd128'] = hub.load(
+        "https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1"
+    )
+
+try:
+    nltk.data.find('stopwords', quiet=True)
+except LookupError:
+    nltk.download('stopwords', quiet=True)
+
 WPT = WordPunctTokenizer()
-
-# tokens entrenados a partir de Google News en Español
-embedd128 = hub.load(
-    "https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1"
-)
-
 wc = WordCloud()
 
 # Diccionarios para evaluar las predicciones de los modelos
@@ -31,8 +38,6 @@ polaridad = {0: 'Positivas', 1: 'Negativas'}
 emocion = {0: 'Alegria', 1: 'Sorpresa',
            2: 'Tristeza', 3: 'Miedo', 4: 'Ira', 5: 'Disguto'}
 
-# ubicación del modelo
-model_path = os.path.join('Modelos/CNNpol128in2.h5')
 
 
 def text_to_matrix(input):
@@ -63,6 +68,9 @@ def text_to_matrix(input):
 
     z = np.zeros((len(limpio), 128))  # Pre padding
 
+    # obtener datos previamente guardados
+    embedd128 = st.session_state.embedd128
+
     for i, token in enumerate(limpio):
         temp = embedd128([token]).numpy()
         z[i][:] = temp[0][:]  # embed() funcion de vectorizacion
@@ -92,9 +100,11 @@ def text_to_wordcloud(inp):
     return union
 
 
-def get_model():
-    return load_model(model_path)
-
+@st.cache(allow_output_mutation=True)
+def get_model_session():
+    model = keras.models.load_model('Modelos/CNNpol128in2.h5')
+    model.summary()
+    return model, K.get_session()
 
 def determine_polarity(input_text, model):
     # Cargamos los modelos entrenados:
@@ -119,7 +129,8 @@ def main():
 
     text_input = st.text_area('Escribe lo que me quieras contar',
                               on_change=None, placeholder='Exprésate aquí')
-    model = get_model()
+    
+    model, session = get_model_session()
 
     if st.button('Contar'):
         if text_input == '':
@@ -128,6 +139,9 @@ def main():
         else:
             st.write('Sentimentos:')
             output_matrix = text_to_matrix(text_input)
+            
+            # inicializar backend de Keras
+            K.set_session(session)
 
             # NOTA: para que el modelo pueda ejecutarse bajo un CPU,
             # se necesita instalar una versión de tensorflow y keras compatible
