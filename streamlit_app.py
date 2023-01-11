@@ -1,6 +1,3 @@
-# librería de la webapp
-import streamlit as st
-
 # librerías de python
 import os
 import re
@@ -10,9 +7,8 @@ import keras
 import matplotlib.pyplot as plt
 import nltk
 import numpy as np
+import streamlit as st  # librería de la webapp
 import tensorflow_hub as hub
-
-from keras import backend as K
 from nltk import WordPunctTokenizer
 from nltk.corpus import stopwords
 from unidecode import unidecode
@@ -38,6 +34,7 @@ polaridad = {0: 'Positivos', 1: 'Negativos'}
 emocion = {0: 'Alegria', 1: 'Ira', 2: 'Miedo', 3: 'Tristeza'}
 
 
+@st.cache
 def text_to_matrix(input):
     """Genera las entradas necesarias para los modelos entrenados"""
     string = str(input)
@@ -79,6 +76,7 @@ def text_to_matrix(input):
     return z
 
 
+@st.cache
 def text_to_wordcloud(inp):
     """
     Prepara el texto para wordcloud
@@ -158,6 +156,17 @@ def main():
             st.write(
                 f'{emocion[eclass]} (confidencia del {confidence}%)'
             )
+
+            # Nube de palabras
+            word_cloud = wc.generate(text_to_wordcloud(text_input))
+            plt.style.use('dark_background')
+            plt.axis('off')
+            plt.imshow(word_cloud, interpolation='bicubic')
+
+            # guardar imagen, mostrarla y borrarla despues de su uso.
+            plt.savefig('x', dpi=800)
+            st.image('x.png')
+            os.remove('x.png')
 
             # st.write(output_matrix.shape, type(output_matrix), type(model))
 
