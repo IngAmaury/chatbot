@@ -35,8 +35,7 @@ wc = WordCloud()
 
 # Diccionarios para evaluar las predicciones de los modelos
 polaridad = {0: 'Positivos', 1: 'Negativos'}
-emocion = {0: 'Alegria', 1: 'Sorpresa',
-           2: 'Tristeza', 3: 'Miedo', 4: 'Ira', 5: 'Disguto'}
+emocion = {0: 'Alegria', 1: 'Ira', 2: 'Miedo', 3: 'Tristeza'}
 
 
 def text_to_matrix(input):
@@ -100,27 +99,17 @@ def text_to_wordcloud(inp):
 
 
 @st.cache(allow_output_mutation=True)
-def get_model_session():
-    model = keras.models.load_model('Modelos/CNNpol128in2.h5')
-    model.summary()
-    return model, K.get_session()
+def get_model(path):
+    model = keras.models.load_model(path, compile=False)
+    return model
 
 
 def determine_polarity(input_text, model):
     # Cargamos los modelos entrenados:
     mt = text_to_matrix(input_text)  # Respresentación numérica del texto
     results = model.predict(mt)
-    # result2=modelAS6.predict(mt)
     a1 = np.argmax(results)
-    # a2=sum(result2)
     re1 = polaridad[a1]
-    # re2=emocion[np.where(a2 == np.amax(a2))[0][0]]
-    # v=txtWC(input_text) ###Texto original procesado para la nube de palabras
-    # wc_result=wc.generate(v) ## Variable para almacenar la nube de palabras
-    # plt.axis("off")
-    # plt.imshow(wc_result, interpolation='bilinear')
-    # S=wc_result
-    # plt.show()
     return re1
 
 
@@ -130,29 +119,44 @@ def main():
     text_input = st.text_area('Escribe lo que me quieras platicar:',
                               on_change=None, placeholder='Exprésate aquí')
 
-    model, session = get_model_session()
+    model_pol = get_model('Modelos/CNNpol128in2.h5')
+    model_4e = get_model('Modelos/Modelo_E4t128_in4.h5')
 
     if st.button('¡Platícame!'):
         if text_input == '':
             st.write('Escribe en el espacio de arriba lo que quieras platicarme.')
 
         else:
-            st.write('Sentimentos:')
+            # Sentimientos
+            st.write('Polaridad inferida:')
             output_matrix = text_to_matrix(text_input)
-
-            # inicializar backend de Keras
-            K.set_session(session)
 
             # NOTA: para que el modelo pueda ejecutarse bajo un CPU,
             # se necesita instalar una versión de tensorflow y keras compatible
             # (ej. intel-tensorflow)
-            predict = model.predict(output_matrix)
+            predict = model_pol.predict(output_matrix)
             pclass = np.argmax(predict, axis=1)[0]
 
             confidence = np.floor(10000 * predict[0][pclass])/100
 
             st.write(
                 f'{polaridad[pclass]} (confidencia del {confidence}%)'
+            )
+
+            # Emociones
+            st.write('Emoción inferida:')
+            output_matrix = text_to_matrix(text_input)
+
+            # NOTA: para que el modelo pueda ejecutarse bajo un CPU,
+            # se necesita instalar una versión de tensorflow y keras compatible
+            # (ej. intel-tensorflow)
+            predict = model_4e.predict(output_matrix)
+            eclass = np.argmax(predict, axis=1)[0]
+
+            confidence = np.floor(10000 * predict[0][eclass])/100
+
+            st.write(
+                f'{emocion[eclass]} (confidencia del {confidence}%)'
             )
 
             # st.write(output_matrix.shape, type(output_matrix), type(model))
