@@ -10,28 +10,10 @@ import numpy as np
 import streamlit as st  # librería de la webapp
 from nltk import WordPunctTokenizer
 from nltk.corpus import stopwords
+from streamlit_server_state import server_state, server_state_lock
 from unidecode import unidecode
 
-# datos persistentes entre sesiones de streamlit
-if 'embedd128' not in st.session_state:
-    import tensorflow_hub as hub
 
-    # tokens entrenados a partir de Google News en Español
-    st.session_state['embedd128'] = hub.load(
-        "https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1"
-    )
-
-try:
-    nltk.data.find('stopwords')
-except LookupError:
-    nltk.download('stopwords', quiet=True)
-
-# Diccionarios para evaluar las predicciones de los modelos
-polaridad = {0: 'Positivos', 1: 'Negativos'}
-emocion = {0: 'Alegria', 1: 'Ira', 2: 'Miedo', 3: 'Tristeza'}
-
-
-@st.cache
 def text_to_matrix(input):
     """Genera las entradas necesarias para los modelos entrenados"""
     string = str(input)
@@ -61,7 +43,8 @@ def text_to_matrix(input):
     z = np.zeros((len(limpio), 128))  # Pre padding
 
     # obtener datos previamente guardados
-    embedd128 = st.session_state.embedd128
+    with server_state_lock.embedd128:
+        embedd128 = server_state.embedd128
 
     for i, token in enumerate(limpio):
         temp = embedd128([token]).numpy()
@@ -99,15 +82,6 @@ def get_model(path):
     return model
 
 
-def determine_polarity(input_text, model):
-    # Cargamos los modelos entrenados:
-    mt = text_to_matrix(input_text)  # Respresentación numérica del texto
-    results = model.predict(mt)
-    a1 = np.argmax(results)
-    re1 = polaridad[a1]
-    return re1
-
-
 def main():
     st.title("Hola soy Psibot")
 
@@ -122,6 +96,10 @@ def main():
             st.write('Escribe en el espacio de arriba lo que quieras platicarme.')
 
         else:
+            # Diccionarios para evaluar las predicciones de los modelos
+            polaridad = {0: 'Positivos', 1: 'Negativos'}
+            emocion = {0: 'Alegria', 1: 'Ira', 2: 'Miedo', 3: 'Tristeza'}
+
             # Sentimientos
             st.write('Polaridad inferida:')
             output_matrix = text_to_matrix(text_input)
@@ -156,7 +134,7 @@ def main():
 
             # Nube de palabras
             from wordcloud import WordCloud
-            
+
             word_cloud = WordCloud().generate(text_to_wordcloud(text_input))
             plt.style.use('dark_background')
             plt.axis('off')
@@ -167,8 +145,20 @@ def main():
             st.image('x.png')
             os.remove('x.png')
 
-            # st.write(output_matrix.shape, type(output_matrix), type(model))
-
 
 if __name__ == '__main__':
-    main()
+    # tokens entrenados a partir de Google News en Español
+    tmurl = "https://tfhub.dev/google/tf2-preview/nnlm-es-dim128-with-normalization/1"
+
+    # datos persistentes entre sesiones de streamlit
+    with server_state_lock['embedd128']:
+        if 'embedd128' not in server_state:
+            import tensorflow_hub as hub
+            server_state.embedd128 = hub.load(tmurl)
+
+    try:
+        nltk.data.find('stopwords')
+    except LookupError:
+        nltk.download('stopwords', quiet=True)
+
+    main()  # inicializar aplicación
